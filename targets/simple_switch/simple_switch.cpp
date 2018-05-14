@@ -342,6 +342,63 @@ SimpleSwitch::ingress_thread() {
 
     ingress_mau->apply(packet.get());
 
+    //matteo
+    uint32_t learn_action = Data(phv->get_field("meta.learn_action")); // 0=not_learn, 1=modify, 2=add
+
+    if (learn_action!=0) {
+      
+      std::vector<MatchKeyParam> match_key;
+      //TODO: Take key from update_scope
+      HeaderType *params = phv->get_header("userMetadata.update_scope").get_header_type();
+      for (int i = 0; i < params.num_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
+	std::string field_name = params.get_field_name(i);
+	if (field_name != "_padding") {
+	  std::regex e("__");
+	  field_name = std::regex_replace(field_name, e, ".");
+          ByteContainer key = phv->get_field(field_name).get_bytes();
+	  match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32);
+	}
+      }
+      
+      
+      ActionData adata;
+      HeaderType *params = phv->get_header("userMetadata.params").get_header_type();
+      for (int i = 0; i < params.num_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
+	std::string field_name = params.get_field_name(i);
+	if (field_name != "_padding") {
+	  std::regex e("__");
+	  field_name = std::regex_replace(field_name, e, ".");
+          adata.push_back_action_data(Data(phv->get_field(field_name)));
+	}
+      }
+
+      uint32_t handle;
+      MatchErrorCode rc = MatchErrorCode::SUCCESS;
+      /*
+	if meta=2 add_entry, not_learn with ternary key of policy, learn_modify with wild cards
+	else if meta=1 modify_entry, modify entry with detected ternary key 
+
+	in ogni caso: 
+      */
+      rc = mt_add_entry(0, "learn_table", match_key, "learn_action", adata, &handle);
+      
+      if (rc == MatchErrorCode::SUCCESS) {
+	//update welcome table
+	ActionData adata2;
+	uint32_t handle2;
+	MatchErrorCode rc2 = MatchErrorCode::SUCCESS;
+	rc2 = mt_add_entry(0, "welcome", match_key, "not_learn", adata2, &handle2); // match_key is the same
+	if (rc2 == MatchErrorCode::SUCCESS) {
+	  std::cout << "I've learned something new :)\n";
+	} else {
+	  std::cout << "Something went wrong updating the welcome table\n";
+	}
+      } else {
+	std::cout << "Couldn't learn it..\n";
+      }
+    }
+
+
     packet->reset_exit();
 
     Field &f_egress_spec = phv->get_field("standard_metadata.egress_spec");
