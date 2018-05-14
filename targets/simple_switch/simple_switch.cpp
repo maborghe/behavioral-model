@@ -359,8 +359,7 @@ SimpleSwitch::ingress_thread() {
 	  match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32);
 	}
       }
-      
-      
+            
       ActionData adata;
       HeaderType *params = phv->get_header("userMetadata.params").get_header_type();
       for (int i = 0; i < params.num_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
