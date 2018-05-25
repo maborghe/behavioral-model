@@ -33,6 +33,11 @@
 #include <thread>
 #include <vector>
 #include <functional>
+//matteo
+#include <bm/bm_sim/P4Objects.h>
+#include <bm/bm_sim/bytecontainer.h>
+#include <bm/bm_sim/match_units.h>
+#include <bm/bm_sim/match_tables.h>
 
 // TODO(antonin)
 // experimental support for priority queueing
@@ -63,6 +68,16 @@ using bm::Field;
 using bm::FieldList;
 using bm::packet_id_t;
 using bm::p4object_id_t;
+//matteo
+using bm::Data;	
+using bm::ActionData;
+using bm::MatchKeyParam;
+using bm::MatchErrorCode;
+using bm::MatchKeyBuilder;
+using bm::ByteContainer;
+using bm::Header;
+using bm::HeaderType;
+using bm::MatchTable;
 
 
 class SimpleSwitch : public Switch {
@@ -79,6 +94,8 @@ class SimpleSwitch : public Switch {
   explicit SimpleSwitch(int max_port = 256, bool enable_swap = false);
 
   ~SimpleSwitch();
+
+  std::string printError(MatchErrorCode rc); //matteo
 
   int receive_(int port_num, const char *buffer, int len) override;
 

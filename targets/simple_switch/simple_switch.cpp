@@ -29,6 +29,8 @@
 #include <string>
 
 #include "simple_switch.h"
+#include <regex> //matteo
+#include <iterator> //matteo
 
 namespace {
 
@@ -310,6 +312,43 @@ SimpleSwitch::check_queueing_metadata() {
   }
 }
 
+//matteo
+std::string SimpleSwitch::printError(MatchErrorCode rc) {
+    std::string error;
+    switch (rc) {
+	case MatchErrorCode::SUCCESS : error = "SUCCESS"; break;
+	case MatchErrorCode::TABLE_FULL : error = "TABLE_FULL"; break;
+	case MatchErrorCode::INVALID_HANDLE : error = "INVALID_HANDLE"; break;
+	case MatchErrorCode::EXPIRED_HANDLE : error = "EXPIRED_HANDLE"; break;
+	case MatchErrorCode::COUNTERS_DISABLED : error = "COUNTERS_DISABLED"; break; 
+	case MatchErrorCode::METERS_DISABLED : error = "METERS_DISABLED"; break; 
+	case MatchErrorCode::AGEING_DISABLED : error = "AGEING_DISABLED"; break; 
+	case MatchErrorCode::INVALID_TABLE_NAME : error = "INVALID_TABLE_NAME"; break; 
+	case MatchErrorCode::INVALID_ACTION_NAME : error ="INVALID_ACTION_NAME"; break; 
+	case MatchErrorCode::WRONG_TABLE_TYPE : error ="WRONG_TABLE_TYPE"; break; 
+	case MatchErrorCode::INVALID_MBR_HANDLE : error ="INVALID_MBR_HANDLE"; break; 
+	case MatchErrorCode::MBR_STILL_USED : error ="MBR_STILL_USED"; break; 
+	case MatchErrorCode::MBR_ALREADY_IN_GRP : error ="MBR_ALREADY_IN_GRP"; break; 
+	case MatchErrorCode::MBR_NOT_IN_GRP : error ="MBR_NOT_IN_GRP"; break; 
+	case MatchErrorCode::INVALID_GRP_HANDLE : error ="INVALID_GRP_HANDLE"; break; 
+	case MatchErrorCode::GRP_STILL_USED : error ="GRP_STILL_USED"; break; 
+	case MatchErrorCode::EMPTY_GRP : error ="EMPTY_GRP"; break; 
+	case MatchErrorCode::DUPLICATE_ENTRY : error = "DUPLICATE_ENTRY"; break; 
+	case MatchErrorCode::BAD_MATCH_KEY : error ="DUPLICATE_ENTRY"; break; 
+	case MatchErrorCode::INVALID_METER_OPERATION : error = "INVALID_METER_OPERATION"; break; 
+	case MatchErrorCode::DEFAULT_ACTION_IS_CONST : error ="DEFAULT_ACTION_IS_CONST"; break; 
+	case MatchErrorCode::DEFAULT_ENTRY_IS_CONST : error ="DEFAULT_ENTRY_IS_CONST"; break; 
+	case MatchErrorCode::NO_DEFAULT_ENTRY : error ="NO_DEFAULT_ENTRY"; break; 
+	case MatchErrorCode::INVALID_ACTION_PROFILE_NAME : error = "INVALID_ACTION_PROFILE_NAME"; break; 
+	case MatchErrorCode::NO_ACTION_PROFILE_SELECTION : error ="NO_ACTION_PROFILE_SELECTION"; break; 
+	case MatchErrorCode::IMMUTABLE_TABLE_ENTRIES : error ="IMMUTABLE_TABLE_ENTRIES"; break; 
+	case MatchErrorCode::BAD_ACTION_DATA : error = "BAD_ACTION_DATA"; break; 
+	case MatchErrorCode::ERROR : error ="error"; break; 
+	default  : error ="keine Ahnung"; break; 
+    }
+    return error;
+}
+
 void
 SimpleSwitch::ingress_thread() {
   PHV *phv;
@@ -343,60 +382,89 @@ SimpleSwitch::ingress_thread() {
     ingress_mau->apply(packet.get());
 
     //matteo
-    uint32_t learn_action = Data(phv->get_field("meta.learn_action")); // 0=not_learn, 1=modify, 2=add
+    Field learn_action_f = phv->get_field("scalars.metadata.learn_action");
+    int learn_action = learn_action_f.get_int(); // 0=not_learn, 1=modify, 2=add
 
     if (learn_action!=0) {
-      
       std::vector<MatchKeyParam> match_key;
-      //TODO: Take key from update_scope
-      HeaderType *params = phv->get_header("userMetadata.update_scope").get_header_type();
-      for (int i = 0; i < params.num_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
-	std::string field_name = params.get_field_name(i);
+
+      int update_fields = phv->get_header("userMetadata.update_scope").get_header_type().get_num_fields();
+      for (int i = 0; i < update_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
+	std::string field_name = phv->get_header("userMetadata.update_scope").get_header_type().get_field_name(i);
 	if (field_name != "_padding") {
 	  std::regex e("__");
 	  field_name = std::regex_replace(field_name, e, ".");
           ByteContainer key = phv->get_field(field_name).get_bytes();
-	  match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32);
+	  match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32); //TODO: use length
 	}
       }
-            
-      ActionData adata;
-      HeaderType *params = phv->get_header("userMetadata.params").get_header_type();
-      for (int i = 0; i < params.num_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
-	std::string field_name = params.get_field_name(i);
-	if (field_name != "_padding") {
+
+      std::vector<MatchKeyParam> match_key_event = match_key;
+      std::vector<MatchKeyParam> match_key_mask = match_key;
+      int event_fields = phv->get_header("userMetadata.event").get_header_type().get_num_fields();
+
+      for (int i = 0; i < event_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
+	std::string field_name = phv->get_header("userMetadata.event").get_header_type().get_field_name(i);
+	if (field_name != "_padding") { //TODO: use regex
 	  std::regex e("__");
 	  field_name = std::regex_replace(field_name, e, ".");
-          adata.push_back_action_data(Data(phv->get_field(field_name)));
+	  ByteContainer mask1("0x01FF");
+	  ByteContainer mask2("0x0000");
+	  ByteContainer key = phv->get_field(field_name).get_bytes();
+	  match_key_event.emplace_back(MatchKeyParam::Type::TERNARY, std::string(key.data(),key.size()),std::string(mask1.data(),mask1.size()));
+	  match_key_mask.emplace_back(MatchKeyParam::Type::TERNARY,std::string(key.data(),key.size()),std::string(mask2.data(),mask2.size()));
+	  //TODO:use length
 	}
       }
 
-      uint32_t handle;
-      MatchErrorCode rc = MatchErrorCode::SUCCESS;
-      /*
-	if meta=2 add_entry, not_learn with ternary key of policy, learn_modify with wild cards
-	else if meta=1 modify_entry, modify entry with detected ternary key 
-
-	in ogni caso: 
-      */
-      rc = mt_add_entry(0, "learn_table", match_key, "learn_action", adata, &handle);
+      ActionData adata1, adata2, adata3;
+      int params_fields = phv->get_header("userMetadata.action_params").get_header_type().get_num_fields();
+      for (int i = 0; i < params_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
+	std::string field_name = phv->get_header("userMetadata.action_params").get_header_type().get_field_name(i);
+	if (!std::regex_match(field_name, std::regex("_padding(.*)"))) { 
+	  std::regex e("__");
+	  field_name = std::regex_replace(field_name, std::regex("__"), ".");
+          adata1.push_back_action_data(Data(phv->get_field(field_name)));
+	}
+      }
+      uint32_t handle1, handle2, handle3;
+      MatchErrorCode rc1, rc2, rc3;
+      rc1 = rc2 = rc3 = MatchErrorCode::SUCCESS;
       
-      if (rc == MatchErrorCode::SUCCESS) {
-	//update welcome table
-	ActionData adata2;
-	uint32_t handle2;
-	MatchErrorCode rc2 = MatchErrorCode::SUCCESS;
-	rc2 = mt_add_entry(0, "welcome", match_key, "not_learn", adata2, &handle2); // match_key is the same
-	if (rc2 == MatchErrorCode::SUCCESS) {
-	  std::cout << "I've learned something new :)\n";
-	} else {
-	  std::cout << "Something went wrong updating the welcome table\n";
-	}
-      } else {
-	std::cout << "Couldn't learn it..\n";
-      }
-    }
+      if (learn_action==2) {
+	rc1 = mt_add_entry(0, "lfu_table", match_key, "lfu_action", adata1, &handle1);
+	std::cout << "adding lfu_table entry: " << SimpleSwitch::printError(rc1) << "\n";
+	rc2 = mt_add_entry(0, "lfu_policy", match_key_event, "not_learn", adata2, &handle2, 2);
+	std::cout << "adding event entry: " << SimpleSwitch::printError(rc2) << "\n";
+	adata3.push_back_action_data(Data(handle2));
+	rc3 = mt_add_entry(0, "lfu_policy", match_key_mask, "learn_modify", adata3, &handle3, 3);
+	std::cout << "adding masked entry: " << SimpleSwitch::printError(rc3) << "\n";
 
+      } else if (learn_action==1) {
+	MatchErrorCode rc4, rc5, rc6;
+	rc4 = rc5 = MatchErrorCode::SUCCESS;
+	MatchTable::Entry entry1, entry2;
+	rc4 = mt_get_entry_from_key(0, "lfu_table", match_key, &entry1);
+	std::cout << "getting lfu_table entry: " << SimpleSwitch::printError(rc4) << "\n";
+	rc1 = mt_modify_entry(0, "lfu_table", entry1.handle, "lfu_action", adata1);
+	std::cout << "modifying lfu_table entry: " << SimpleSwitch::printError(rc1) << "\n";
+	uint32_t old_entry = phv->get_field("scalars.metadata.action_handle").get_uint();
+	rc3 = mt_delete_entry(0, "lfu_policy", old_entry);
+	std::cout << "deleting event entry: " << SimpleSwitch::printError(rc3) << "\n";
+	rc2 = mt_add_entry(0, "lfu_policy", match_key_event, "not_learn", adata2, &handle2, 2);
+	std::cout << "adding event entry: " << SimpleSwitch::printError(rc2) << "\n";
+	rc6 = mt_get_entry_from_key(0, "lfu_policy", match_key_mask, &entry2);
+	std::cout << "getting masked entry: " << SimpleSwitch::printError(rc6) << "\n";	
+	adata3.push_back_action_data(Data(handle2));
+	rc5 = mt_modify_entry(0, "lfu_policy", entry2.handle, "learn_modify", adata3);
+	std::cout << "modifying masked entry: " << SimpleSwitch::printError(rc5) << "\n";
+      } else {
+	//error
+      }
+
+
+    }
+	
 
     packet->reset_exit();
 
