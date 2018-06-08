@@ -334,7 +334,7 @@ std::string SimpleSwitch::printError(MatchErrorCode rc) {
 	case MatchErrorCode::GRP_STILL_USED : error ="GRP_STILL_USED"; break; 
 	case MatchErrorCode::EMPTY_GRP : error ="EMPTY_GRP"; break; 
 	case MatchErrorCode::DUPLICATE_ENTRY : error = "DUPLICATE_ENTRY"; break; 
-	case MatchErrorCode::BAD_MATCH_KEY : error ="DUPLICATE_ENTRY"; break; 
+	case MatchErrorCode::BAD_MATCH_KEY : error ="BAD_MATCH_KEY"; break; 
 	case MatchErrorCode::INVALID_METER_OPERATION : error = "INVALID_METER_OPERATION"; break; 
 	case MatchErrorCode::DEFAULT_ACTION_IS_CONST : error ="DEFAULT_ACTION_IS_CONST"; break; 
 	case MatchErrorCode::DEFAULT_ENTRY_IS_CONST : error ="DEFAULT_ENTRY_IS_CONST"; break; 
@@ -387,6 +387,8 @@ SimpleSwitch::ingress_thread() {
 
     if (learn_action!=0) {
       std::vector<MatchKeyParam> match_key;
+      std::vector<MatchKeyParam> match_key_event;
+      std::vector<MatchKeyParam> match_key_mask;
 
       int update_fields = phv->get_header("userMetadata.update_scope").get_header_type().get_num_fields();
       for (int i = 0; i < update_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
@@ -396,13 +398,13 @@ SimpleSwitch::ingress_thread() {
 	  field_name = std::regex_replace(field_name, e, ".");
           ByteContainer key = phv->get_field(field_name).get_bytes();
 	  match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32); //TODO: use length
+	  match_key_event.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32); //TODO: use length
+	  match_key_mask.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32); //TODO: use length
 	}
       }
 
-      std::vector<MatchKeyParam> match_key_event = match_key;
-      std::vector<MatchKeyParam> match_key_mask = match_key;
       int event_fields = phv->get_header("userMetadata.event").get_header_type().get_num_fields();
-
+      std::cout << "event_fields: " << event_fields << "\n";
       for (int i = 0; i < event_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
 	std::string field_name = phv->get_header("userMetadata.event").get_header_type().get_field_name(i);
 	if (field_name != "_padding") { //TODO: use regex
@@ -437,9 +439,12 @@ SimpleSwitch::ingress_thread() {
 	rc2 = mt_add_entry(0, "lfu_policy", match_key_event, "not_learn", adata2, &handle2, 2);
 	std::cout << "adding event entry: " << SimpleSwitch::printError(rc2) << "\n";
 	adata3.push_back_action_data(Data(handle2));
-	rc3 = mt_add_entry(0, "lfu_policy", match_key_mask, "learn_modify", adata3, &handle3, 3);
-	std::cout << "adding masked entry: " << SimpleSwitch::printError(rc3) << "\n";
-
+        if (event_fields > 1) {
+	  rc3 = mt_add_entry(0, "lfu_policy", match_key_mask, "learn_modify", adata3, &handle3, 3);
+	  std::cout << "adding masked entry: " << SimpleSwitch::printError(rc3) << "\n";
+	} else {
+	  std::cout << "Update part not required\n";
+	}
       } else if (learn_action==1) {
 	MatchErrorCode rc4, rc5, rc6;
 	rc4 = rc5 = MatchErrorCode::SUCCESS;
