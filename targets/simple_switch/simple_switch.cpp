@@ -382,9 +382,64 @@ SimpleSwitch::ingress_thread() {
     ingress_mau->apply(packet.get());
 
     //matteo
-    Field learn_action_f = phv->get_field("scalars.metadata.learn_action");
-    int learn_action = learn_action_f.get_int(); // 0=not_learn, 1=modify, 2=add
 
+    auto &lfu_header_stack = phv->get_header_stack(0); //TODO: get it by name
+    int headers_count = phv->get_field("scalars.metadata.headers_count").get_int();
+    for (int i = 0; i < headers_count; i++) {
+        auto &hdr = lfu_header_stack.at(i);
+	int update_type = hdr.get_field(0).get_int();
+	std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
+	int table_id = hdr.get_field(1).get_int();
+	std::string table_name = "lfu_table_" + std::to_string(table_id);
+	std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
+	std::vector<MatchKeyParam> match_key;
+	//TODO: read key size
+	int key_size = 1;
+	for (int j = 0; j < key_size ; j+=2) {
+	    std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
+	    ByteContainer key_field = hdr.get_field(j+2).get_bytes();
+	    match_key.emplace_back(MatchKeyParam::Type::EXACT, std::string(key_field.data(), key_field.size()));
+	}
+	std::string action_name;
+        ActionData adata;
+	if (update_type != 1) {
+	    int action_offset = hdr.get_header_type().get_field_offset("action_id");
+	    int action_id = hdr.get_field(action_offset).get_int();
+	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
+	    std::cout << "Action name: " << action_name << "\n";
+	    //TODO: read adata size
+	    int adata_size = 1;
+	    for (int j = 0; j < adata_size; j++) {
+		adata.push_back_action_data(Data(hdr.get_field(action_offset + 1 + j)));
+	    }
+	}
+
+	MatchErrorCode rc;
+        rc = MatchErrorCode::SUCCESS;
+        uint32_t handle;
+	//TODO: MATCH_KIND!!!!!!!!!!!!!
+	if (update_type == 0) {
+
+	    rc = mt_add_entry(0, table_name, match_key, action_name, adata, &handle);
+	    std::cout << "Adding entry: " << SimpleSwitch::printError(rc) << "\n";
+	} else {
+
+	    MatchTable::Entry entry;
+	    MatchErrorCode rc2 = mt_get_entry_from_key(0, table_name, match_key, &entry);
+	    if (rc2 == MatchErrorCode::SUCCESS) {
+	        if (update_type == 1) {
+		    rc = mt_delete_entry(0, table_name, entry.handle);
+		    std::cout << "Deleting entry: " << SimpleSwitch::printError(rc) << "\n";
+	        } else {
+		    rc = mt_modify_entry(0, table_name, entry.handle, action_name, adata);
+		    std::cout << "Modifying: " << SimpleSwitch::printError(rc) << "\n";
+	        }
+	    } else {
+		std::cout << "Failed to retrieve entry: " << SimpleSwitch::printError(rc2) << "\n";
+	    }
+	}
+    }
+    /*
     if (learn_action!=0) {
       std::vector<MatchKeyParam> match_key;
       std::vector<MatchKeyParam> match_key_event;
@@ -470,7 +525,7 @@ SimpleSwitch::ingress_thread() {
 
     }
 	
-
+    */
     packet->reset_exit();
 
     Field &f_egress_spec = phv->get_field("standard_metadata.egress_spec");

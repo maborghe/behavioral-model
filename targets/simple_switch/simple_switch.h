@@ -38,7 +38,7 @@
 #include <bm/bm_sim/bytecontainer.h>
 #include <bm/bm_sim/match_units.h>
 #include <bm/bm_sim/match_tables.h>
-
+#include <bm/bm_sim/stacks.h>
 // TODO(antonin)
 // experimental support for priority queueing
 // to enable it, uncomment this flag
@@ -78,6 +78,7 @@ using bm::ByteContainer;
 using bm::Header;
 using bm::HeaderType;
 using bm::MatchTable;
+using bm::HeaderStack;
 
 
 class SimpleSwitch : public Switch {
