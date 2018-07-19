@@ -349,6 +349,7 @@ std::string SimpleSwitch::printError(MatchErrorCode rc) {
     return error;
 }
 
+
 void
 SimpleSwitch::ingress_thread() {
   PHV *phv;
@@ -382,13 +383,20 @@ SimpleSwitch::ingress_thread() {
     ingress_mau->apply(packet.get());
 
     //matteo
-
-    auto &lfu_header_stack = phv->get_header_stack(0); //TODO: get it by name
-    int headers_count = phv->get_field("scalars.metadata.headers_count").get_int();
-    for (int i = 0; i < headers_count; i++) {
+    //auto &lfu_header_stack = phv->get_header_stack(get_header_stack_id_cfg("lfu_header_stack"));
+    auto &lfu_header_stack = phv->get_header_stack(0);
+//    int headers_count = phv->get_field("scalars.metadata.headers_count").get_int();
+    for (int i = 0; i < 1; i++) {// TODO: headers_count!
         auto &hdr = lfu_header_stack.at(i);
+
+	//print header
+	for (int j = 0; j < hdr.get_header_type().get_num_fields(); j++) {
+	    std::cout << hdr.get_field_name(j) << ": " << hdr.get_field(j).get_int() << " | ";
+        }
+        std::cout << "\n";
+
 	int update_type = hdr.get_field(0).get_int();
-	std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
+	//std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
 	int table_id = hdr.get_field(1).get_int();
 	std::string table_name = "lfu_table_" + std::to_string(table_id);
 	std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
@@ -396,7 +404,7 @@ SimpleSwitch::ingress_thread() {
 	//TODO: read key size
 	int key_size = 1;
 	for (int j = 0; j < key_size ; j+=2) {
-	    std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
+	    //std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
 	    ByteContainer key_field = hdr.get_field(j+2).get_bytes();
 	    match_key.emplace_back(MatchKeyParam::Type::EXACT, std::string(key_field.data(), key_field.size()));
 	}
@@ -406,7 +414,7 @@ SimpleSwitch::ingress_thread() {
 	    int action_offset = hdr.get_header_type().get_field_offset("action_id");
 	    int action_id = hdr.get_field(action_offset).get_int();
 	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
-	    std::cout << "Action name: " << action_name << "\n";
+	    //std::cout << "Action name: " << action_name << "\n";
 	    //TODO: read adata size
 	    int adata_size = 1;
 	    for (int j = 0; j < adata_size; j++) {
@@ -417,7 +425,7 @@ SimpleSwitch::ingress_thread() {
 	MatchErrorCode rc;
         rc = MatchErrorCode::SUCCESS;
         uint32_t handle;
-	//TODO: MATCH_KIND!!!!!!!!!!!!!
+	//TODO: MATCH_KIND
 	if (update_type == 0) {
 
 	    rc = mt_add_entry(0, table_name, match_key, action_name, adata, &handle);
