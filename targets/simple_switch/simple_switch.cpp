@@ -382,11 +382,12 @@ SimpleSwitch::ingress_thread() {
 
     ingress_mau->apply(packet.get());
 
+
     //matteo
     //auto &lfu_header_stack = phv->get_header_stack(get_header_stack_id_cfg("lfu_header_stack"));
     auto &lfu_header_stack = phv->get_header_stack(0);
-//    int headers_count = phv->get_field("scalars.metadata.headers_count").get_int();
-    for (int i = 0; i < 1; i++) {// TODO: headers_count!
+    int header_count = phv->get_field("scalars.metadata.header_count").get_int();
+    for (int i = 0; i < header_count; i++) {
         auto &hdr = lfu_header_stack.at(i);
 
 	//print header
@@ -414,7 +415,7 @@ SimpleSwitch::ingress_thread() {
 	    int action_offset = hdr.get_header_type().get_field_offset("action_id");
 	    int action_id = hdr.get_field(action_offset).get_int();
 	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
-	    //std::cout << "Action name: " << action_name << "\n";
+	    std::cout << "Action name: " << action_name << "\n";
 	    //TODO: read adata size
 	    int adata_size = 1;
 	    for (int j = 0; j < adata_size; j++) {
