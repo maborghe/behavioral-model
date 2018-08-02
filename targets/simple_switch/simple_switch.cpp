@@ -403,7 +403,8 @@ SimpleSwitch::ingress_thread() {
 	std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
 	std::vector<MatchKeyParam> match_key;
 	
-	int action_offset = hdr.get_header_type().get_field_offset("action_id");	
+	int action_offset = hdr.get_header_type().get_field_offset("action_id");
+	//TODO: read it from the	
 	for (int j = 2; j < action_offset ; j++) {
 	    //std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
 	    ByteContainer key_field = hdr.get_field(j).get_bytes();
@@ -417,10 +418,16 @@ SimpleSwitch::ingress_thread() {
 	    int action_id = hdr.get_field(action_offset).get_int();
 	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
 	    std::cout << "Action name: " << action_name << "\n";
-	    //TODO: read adata size
-	    int adata_size = 1;
-	    for (int j = 0; j < adata_size; j++) {
-		adata.push_back_action_data(Data(hdr.get_field(action_offset + 1 + j)));
+
+
+	    int num_params = get_context(0)->get_num_params_by_name(table_name, action_name);
+	    std::cout << "Num params: " << num_params << "\n";
+
+	    	    
+	    for (int j = action_offset + 1; j < action_offset + 1+ num_params; j++) {
+		
+		adata.push_back_action_data(Data(hdr.get_field(j)));
+		
 	    }
 	}
 

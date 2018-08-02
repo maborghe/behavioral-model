@@ -162,6 +162,11 @@ class Context final {
     return p4objects->get_action(table_name, action_name)->get_id();
   }
 
+  int get_num_params_by_name(const std::string &table_name,
+                              const std::string &action_name) {
+    return p4objects->get_action(table_name, action_name)->get_num_params();
+  }
+
  private:
   // ---------- runtime interfaces ----------
 
