@@ -400,12 +400,13 @@ SimpleSwitch::ingress_thread() {
 	//std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
 	int table_id = hdr.get_field(1).get_int();
 	std::string table_name = "lfu_table_" + std::to_string(table_id);
-	std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
+	//std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
 	std::vector<MatchKeyParam> match_key;
 	
-	int action_offset = hdr.get_header_type().get_field_offset("action_id");
-	//TODO: read it from the	
-	for (int j = 2; j < action_offset ; j++) {
+	
+	int key_size = get_context(0)->get_key_size(table_name);
+	std::cout << "Key size (" << table_name << "): "<< key_size << "\n";
+	for (int j = 2; j < 2 + key_size ; j++) {
 	    //std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
 	    ByteContainer key_field = hdr.get_field(j).get_bytes();
 	    //TODO: read match kind
@@ -415,6 +416,7 @@ SimpleSwitch::ingress_thread() {
 	std::string action_name;
         ActionData adata;
 	if (update_type != 1) {
+	    int action_offset = hdr.get_header_type().get_field_offset("action_id");
 	    int action_id = hdr.get_field(action_offset).get_int();
 	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
 	    std::cout << "Action name: " << action_name << "\n";

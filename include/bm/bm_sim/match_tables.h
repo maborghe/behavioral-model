@@ -178,6 +178,11 @@ class MatchTableAbstract : public NamedP4Object {
   handle_iterator handles_begin() const;
   handle_iterator handles_end() const;
 
+  //matteo
+  int get_key_input_size() {
+    return match_unit_->get_key_input_size();
+  }
+
   // meant to be called by P4Objects when loading the JSON
   // set_default_entry sets a default entry obtained from the JSON. You can make
   // sure that it cannot be changed by the control plane by using the is_const

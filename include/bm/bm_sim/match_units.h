@@ -110,6 +110,11 @@ class MatchKeyBuilder {
 
   void build();
 
+  //matteo
+  int get_key_input_size() {
+    return key_input.size();
+  }
+
   template <typename E>
   std::vector<MatchKeyParam> entry_to_match_params(const E &entry) const;
 
@@ -292,6 +297,11 @@ class MatchUnitAbstract_ {
   void dump_key_params(std::ostream *out,
                        const std::vector<MatchKeyParam> &params,
                        int priority = -1) const;
+
+  //matteo
+  int get_key_input_size() {
+    return match_key_builder.get_key_input_size();
+  }
 
   // TODO(antonin): add an iterator for entries to MatchUnitGeneric<K, V> ?
   handle_iterator handles_begin() const;
