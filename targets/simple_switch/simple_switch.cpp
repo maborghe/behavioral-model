@@ -31,6 +31,7 @@
 #include "simple_switch.h"
 #include <regex> //matteo
 #include <iterator> //matteo
+#include <sys/time.h> //matteo
 
 namespace {
 
@@ -244,6 +245,13 @@ SimpleSwitch::transmit_thread() {
     output_buffer.pop_back(&packet);
     if (packet == nullptr) break;
     BMELOG(packet_out, *packet);
+
+    //matteo
+    timeval time;
+    gettimeofday(&time, NULL);
+    long micros = (time.tv_sec * 1000000) + time.tv_usec;
+    std::cout << "PKTLEAVTIME: " << micros << "\n";
+
     BMLOG_DEBUG_PKT(*packet, "Transmitting packet of size {} out of port {}",
                     packet->get_data_size(), packet->get_egress_port());
     my_transmit_fn(packet->get_egress_port(),
@@ -367,6 +375,13 @@ SimpleSwitch::ingress_thread() {
 
     int ingress_port = packet->get_ingress_port();
     (void) ingress_port;
+
+    //matteo
+    timeval time;
+    gettimeofday(&time, NULL);
+    long micros = (time.tv_sec * 1000000) + time.tv_usec;
+    std::cout << "PKTARRTIME: " << micros << "\n";
+
     BMLOG_DEBUG_PKT(*packet, "Processing packet received on port {}",
                     ingress_port);
 
@@ -647,6 +662,13 @@ SimpleSwitch::ingress_thread() {
     BMLOG_DEBUG_PKT(*packet, "Egress port is {}", egress_port);
 
     if (egress_port == 511) {  // drop packet
+      
+      //matteo
+      timeval time;
+      gettimeofday(&time, NULL);
+      long micros = (time.tv_sec * 1000000) + time.tv_usec;
+      std::cout << "PKTLEAVTIME: " << micros << "\n";
+      
       BMLOG_DEBUG_PKT(*packet, "Dropping packet at the end of ingress");
       continue;
     }

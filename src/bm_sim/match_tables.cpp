@@ -30,6 +30,8 @@
 #include <iostream>
 #include <limits>  // std::numeric_limits
 
+#include <sys/time.h>//matteo
+
 namespace bm {
 
 namespace {
@@ -400,6 +402,13 @@ MatchTable::add_entry(const std::vector<MatchKeyParam> &match_key,
   // format as for a lookup
 
   if (rc == MatchErrorCode::SUCCESS) {
+
+    //matteo
+    timeval time;
+    gettimeofday(&time, NULL);
+    long micros = (time.tv_sec * 1000000) + time.tv_usec;
+    std::cout << "RULEADDTIME: " << micros << "\n";
+
     BMLOG_DEBUG("Entry {} added to table '{}'", *handle, get_name());
     BMLOG_DEBUG(dump_entry_string(*handle));
   } else {
