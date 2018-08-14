@@ -357,50 +357,13 @@ std::string SimpleSwitch::printError(MatchErrorCode rc) {
     return error;
 }
 
-
+//matteo
 void
-SimpleSwitch::ingress_thread() {
-  PHV *phv;
-
-  while (1) {
-    std::unique_ptr<Packet> packet;
-    input_buffer.pop_back(&packet);
-    if (packet == nullptr) break;
-
-    // TODO(antonin): only update these if swapping actually happened?
-    Parser *parser = this->get_parser("parser");
-    Pipeline *ingress_mau = this->get_pipeline("ingress");
-
-    phv = packet->get_phv();
-
-    int ingress_port = packet->get_ingress_port();
-    (void) ingress_port;
-
-    //matteo
-    timeval time;
-    gettimeofday(&time, NULL);
-    long micros = (time.tv_sec * 1000000) + time.tv_usec;
-    std::cout << "PKTARRTIME: " << micros << "\n";
-
-    BMLOG_DEBUG_PKT(*packet, "Processing packet received on port {}",
-                    ingress_port);
-
-    /* This looks like it comes out of the blue. However this is needed for
-       ingress cloning. The parser updates the buffer state (pops the parsed
-       headers) to make the deparser's job easier (the same buffer is
-       re-used). But for ingress cloning, the original packet is needed. This
-       kind of looks hacky though. Maybe a better solution would be to have the
-       parser leave the buffer unchanged, and move the pop logic to the
-       deparser. TODO? */
-    const Packet::buffer_state_t packet_in_state = packet->save_buffer_state();
-    parser->parse(packet.get());
-
-    ingress_mau->apply(packet.get());
-
-
-    //matteo
+SimpleSwitch::apply_lfu_logic(Packet *packet) {
+    
+    PHV *phv = packet->get_phv();
     //auto &lfu_header_stack = phv->get_header_stack(get_header_stack_id_cfg("lfu_header_stack"));
-    auto &lfu_header_stack = phv->get_header_stack(0);
+    auto &lfu_header_stack = phv->get_header_stack(0); //TODO: get it by name
     int header_count = phv->get_field("scalars.metadata.header_count").get_int();
     for (int i = 0; i < header_count; i++) {
         auto &hdr = lfu_header_stack.at(i);
@@ -472,6 +435,51 @@ SimpleSwitch::ingress_thread() {
 	    }
 	}
     }
+}
+
+
+void
+SimpleSwitch::ingress_thread() {
+  PHV *phv;
+
+  while (1) {
+    std::unique_ptr<Packet> packet;
+    input_buffer.pop_back(&packet);
+    if (packet == nullptr) break;
+
+    // TODO(antonin): only update these if swapping actually happened?
+    Parser *parser = this->get_parser("parser");
+    Pipeline *ingress_mau = this->get_pipeline("ingress");
+
+    phv = packet->get_phv();
+
+    int ingress_port = packet->get_ingress_port();
+    (void) ingress_port;
+
+    //matteo
+    timeval time;
+    gettimeofday(&time, NULL);
+    long micros = (time.tv_sec * 1000000) + time.tv_usec;
+    std::cout << "PKTARRTIME: " << micros << "\n";
+
+    BMLOG_DEBUG_PKT(*packet, "Processing packet received on port {}",
+                    ingress_port);
+
+    /* This looks like it comes out of the blue. However this is needed for
+       ingress cloning. The parser updates the buffer state (pops the parsed
+       headers) to make the deparser's job easier (the same buffer is
+       re-used). But for ingress cloning, the original packet is needed. This
+       kind of looks hacky though. Maybe a better solution would be to have the
+       parser leave the buffer unchanged, and move the pop logic to the
+       deparser. TODO? */
+    const Packet::buffer_state_t packet_in_state = packet->save_buffer_state();
+    parser->parse(packet.get());
+
+    ingress_mau->apply(packet.get());
+
+
+    //matteo    
+    apply_lfu_logic(packet.get());
     /*
     if (learn_action!=0) {
       std::vector<MatchKeyParam> match_key;

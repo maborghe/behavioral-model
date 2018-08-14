@@ -98,7 +98,7 @@ class SimpleSwitch : public Switch {
 
   std::string printError(MatchErrorCode rc); //matteo
 
-
+  void apply_lfu_logic(Packet *packet); //matteo
 
   int receive_(int port_num, const char *buffer, int len) override;
 
