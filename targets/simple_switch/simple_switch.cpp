@@ -29,12 +29,9 @@
 #include <string>
 
 #include "simple_switch.h"
-<<<<<<< HEAD
-=======
 #include <regex> //matteo
 #include <iterator> //matteo
 #include <sys/time.h> //matteo
->>>>>>> 58c675d... timestamps added
 
 namespace {
 
@@ -465,13 +462,13 @@ SimpleSwitch::ingress_thread() {
     BMLOG_DEBUG_PKT(*packet, "Egress port is {}", egress_port);
 
     if (egress_port == 511) {  // drop packet
-      
+
       //matteo
       timeval time;
       gettimeofday(&time, NULL);
       long micros = (time.tv_sec * 1000000) + time.tv_usec;
       std::cout << "PKTLEAVTIME: " << micros << "\n";
-      
+
       BMLOG_DEBUG_PKT(*packet, "Dropping packet at the end of ingress");
       continue;
     }
