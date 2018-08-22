@@ -2,8 +2,9 @@
     "__meta__": {
         "version": [
             2,
-            0
-        ]
+            5
+        ],
+        "compiler": "https://github.com/p4lang/p4c-bm"
     },
     "header_types": [
         {
@@ -71,12 +72,32 @@
             "id": 2,
             "fields": [
                 [
-                    "learn_id",
-                    4
+                    "ingress_global_timestamp",
+                    48
                 ],
                 [
-                    "mgid",
-                    4
+                    "egress_global_timestamp",
+                    48
+                ],
+                [
+                    "lf_field_list",
+                    8
+                ],
+                [
+                    "mcast_grp",
+                    16
+                ],
+                [
+                    "egress_rid",
+                    16
+                ],
+                [
+                    "resubmit_flag",
+                    8
+                ],
+                [
+                    "recirculate_flag",
+                    8
                 ]
             ],
             "length_exp": null,
@@ -164,7 +185,7 @@
     "meter_arrays": [],
     "actions": [
         {
-            "name": "mac_learn",
+            "name": "broadcast",
             "id": 0,
             "runtime_data": [],
             "primitives": [
@@ -175,43 +196,7 @@
                             "type": "field",
                             "value": [
                                 "intrinsic_metadata",
-                                "learn_id"
-                            ]
-                        },
-                        {
-                            "type": "hexstr",
-                            "value": "0x0"
-                        }
-                    ]
-                },
-                {
-                    "op": "generate_digest",
-                    "parameters": [
-                        {
-                            "type": "hexstr",
-                            "value": "0x1"
-                        },
-                        {
-                            "type": "hexstr",
-                            "value": "0x1"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "broadcast",
-            "id": 1,
-            "runtime_data": [],
-            "primitives": [
-                {
-                    "op": "modify_field",
-                    "parameters": [
-                        {
-                            "type": "field",
-                            "value": [
-                                "intrinsic_metadata",
-                                "mgid"
+                                "mcast_grp"
                             ]
                         },
                         {
@@ -224,7 +209,7 @@
         },
         {
             "name": "forward",
-            "id": 2,
+            "id": 1,
             "runtime_data": [
                 {
                     "name": "port",
@@ -245,6 +230,26 @@
                         {
                             "type": "runtime_data",
                             "value": 0
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "mac_learn",
+            "id": 2,
+            "runtime_data": [],
+            "primitives": [
+                {
+                    "op": "generate_digest",
+                    "parameters": [
+                        {
+                            "type": "hexstr",
+                            "value": "0x1"
+                        },
+                        {
+                            "type": "hexstr",
+                            "value": "0x1"
                         }
                     ]
                 }
@@ -396,11 +401,31 @@
         ],
         [
             "intrinsic_metadata",
-            "learn_id"
+            "ingress_global_timestamp"
         ],
         [
             "intrinsic_metadata",
-            "mgid"
+            "egress_global_timestamp"
+        ],
+        [
+            "intrinsic_metadata",
+            "lf_field_list"
+        ],
+        [
+            "intrinsic_metadata",
+            "mcast_grp"
+        ],
+        [
+            "intrinsic_metadata",
+            "egress_rid"
+        ],
+        [
+            "intrinsic_metadata",
+            "resubmit_flag"
+        ],
+        [
+            "intrinsic_metadata",
+            "recirculate_flag"
         ]
     ]
 }

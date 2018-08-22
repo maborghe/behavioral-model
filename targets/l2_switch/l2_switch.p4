@@ -22,10 +22,15 @@ header_type ethernet_t {
 }
 
 header_type intrinsic_metadata_t {
-    fields {
-        learn_id : 4;
-        mgid : 4;
-    }
+   fields {
+        ingress_global_timestamp : 48;
+        egress_global_timestamp : 48;
+        lf_field_list : 8;
+        mcast_grp : 16;
+        egress_rid : 16;
+        resubmit_flag : 8;
+        recirculate_flag : 8;
+   }
 }
 
 parser start {
@@ -56,7 +61,6 @@ field_list mac_learn_digest {
 
 action mac_learn() {
     // hack to force BM to enable arithmetic on this field
-    modify_field(intrinsic_metadata.learn_id, 0);
     generate_digest(MAC_LEARN_RECEIVER, mac_learn_digest);
 }
 
@@ -73,7 +77,7 @@ action forward(port) {
 }
 
 action broadcast() {
-    modify_field(intrinsic_metadata.mgid, 1);
+    modify_field(intrinsic_metadata.mcast_grp, 1);
 }
 
 table dmac {
