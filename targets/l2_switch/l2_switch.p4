@@ -69,7 +69,7 @@ table smac {
         ethernet.srcAddr : exact;
     }
     actions {mac_learn; _nop;}
-    size : 512;
+    size : 1024;
 }
 
 action forward(port) {
@@ -85,7 +85,7 @@ table dmac {
         ethernet.dstAddr : exact;
     }
     actions {forward; broadcast;}
-    size : 512;
+    size : 1024;
 }
 
 control ingress{
