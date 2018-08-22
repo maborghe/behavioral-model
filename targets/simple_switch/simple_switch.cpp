@@ -246,11 +246,13 @@ SimpleSwitch::transmit_thread() {
     if (packet == nullptr) break;
     BMELOG(packet_out, *packet);
 
+    /*
     //matteo
     timeval time;
     gettimeofday(&time, NULL);
     long micros = (time.tv_sec * 1000000) + time.tv_usec;
     std::cout << "PKTLEAVTIME: " << micros << "\n";
+    */
 
     BMLOG_DEBUG_PKT(*packet, "Transmitting packet of size {} out of port {}",
                     packet->get_data_size(), packet->get_egress_port());
@@ -338,11 +340,11 @@ SimpleSwitch::ingress_thread() {
     int ingress_port = packet->get_ingress_port();
     (void) ingress_port;
 
-    //matteo
+    //matteo /*
     timeval time;
     gettimeofday(&time, NULL);
     long micros = (time.tv_sec * 1000000) + time.tv_usec;
-    std::cout << "PKTARRTIME: " << micros << "\n";
+    std::cout << "PKTARRTIME: " << micros << "\n";*/
 
     BMLOG_DEBUG_PKT(*packet, "Processing packet received on port {}",
                     ingress_port);
@@ -463,11 +465,11 @@ SimpleSwitch::ingress_thread() {
 
     if (egress_port == 511) {  // drop packet
 
-      //matteo
+      //matteo/*
       timeval time;
       gettimeofday(&time, NULL);
       long micros = (time.tv_sec * 1000000) + time.tv_usec;
-      std::cout << "PKTLEAVTIME: " << micros << "\n";
+      std::cout << "PKTLEAVTIME: " << micros << "\n";*/
 
       BMLOG_DEBUG_PKT(*packet, "Dropping packet at the end of ingress");
       continue;
