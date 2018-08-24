@@ -370,11 +370,13 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
     for (int i = 0; i < header_count; i++) {
         auto &hdr = lfu_header_stack.at(i);
 
+	/*
 	//print header
 	for (int j = 0; j < hdr.get_header_type().get_num_fields(); j++) {
 	    std::cout << hdr.get_field_name(j) << ": " << hdr.get_field(j).get_int() << " | ";
         }
         std::cout << "\n";
+	*/
 
 	int update_type = hdr.get_field(0).get_int();
 	//std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
@@ -382,10 +384,10 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 	std::string table_name = "lfu_table_" + std::to_string(table_id);
 	//std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
 	std::vector<MatchKeyParam> match_key;
-	
-	
+
+
 	int key_size = get_context(0)->get_key_size(table_name);
-	std::cout << "Key size (" << table_name << "): "<< key_size << "\n";
+	//std::cout << "Key size (" << table_name << "): "<< key_size << "\n";
 	for (int j = 2; j < 2 + key_size ; j++) {
 	    //std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
 	    ByteContainer key_field = hdr.get_field(j).get_bytes();
@@ -399,17 +401,16 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 	    int action_offset = hdr.get_header_type().get_field_offset("action_id");
 	    int action_id = hdr.get_field(action_offset).get_int();
 	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
-	    std::cout << "Action name: " << action_name << "\n";
+	    //std::cout << "Action name: " << action_name << "\n";
 
 
 	    int num_params = get_context(0)->get_num_params_by_name(table_name, action_name);
-	    std::cout << "Num params: " << num_params << "\n";
+	    //std::cout << "Num params: " << num_params << "\n";
 
-	    	    
 	    for (int j = action_offset + 1; j < action_offset + 1+ num_params; j++) {
-		
+
 		adata.push_back_action_data(Data(hdr.get_field(j)));
-		
+
 	    }
 	}
 
