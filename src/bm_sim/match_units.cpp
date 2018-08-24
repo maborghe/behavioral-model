@@ -206,8 +206,6 @@ MatchKeyBuilder::operator()(const PHV &phv, ByteContainer *key) const {
       const Field &field = header[in.f_offset];
       if (header.is_valid() || field.is_hidden()) {
         key->append(field.get_bytes());
-	//matteo
-	std::cout << field.get_bytes().data();
       } else {
         key->append(std::string(field.get_nbytes(), '\x00'));
       }
