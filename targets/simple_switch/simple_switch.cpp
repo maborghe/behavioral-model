@@ -388,15 +388,22 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 
 	int key_size = get_context(0)->get_key_size(table_name);
 	//std::cout << "Key size (" << table_name << "): "<< key_size << "\n";
-	for (int j = 2; j < 2 + key_size ; j++) {
+	for (int j = 2; j < 2 + key_size ; j+=2) {
 	    //std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
 	    ByteContainer key_field = hdr.get_field(j).get_bytes();
 	    switch (get_context(0)->get_param_type(table_name, j-2)) {
 	      case MatchKeyParam::Type::EXACT :
 		match_key.emplace_back(MatchKeyParam::Type::EXACT, std::string(key_field.data(), key_field.size()));
 		break;
+	      case MatchKeyParam::Type::TERNARY : 
+		{
+		ByteContainer key_field2 = hdr.get_field(j+1).get_bytes();
+		match_key.emplace_back(MatchKeyParam::Type::TERNARY, std::string(key_field.data(), key_field.size()),
+					std::string(key_field2.data(), key_field2.size()));
+		}
+		break;
 	      case MatchKeyParam::Type::LPM :
-		//TODO: add mask field in the P4 programs, increment by two in the for line
+		break;
 	      default:
 		std::cout << "ERROR: Unknown MatchKeyParam";
 		break;
