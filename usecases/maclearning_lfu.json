@@ -29,6 +29,7 @@
         ["update_type", 2, false],
         ["table_id", 3, false],
         ["key_field_1", 48, false],
+        ["key_mask_1", 48, false],
         ["action_id", 3, false],
         ["data_field_1", 9, false],
         ["_padding", 7, false]
@@ -354,7 +355,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "maclearning_lfu.p4",
-        "line" : 174,
+        "line" : 173,
         "column" : 8,
         "source_fragment" : "MyDeparser"
       },
@@ -383,7 +384,7 @@
           "parameters" : [],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 109,
+            "line" : 108,
             "column" : 8,
             "source_fragment" : "mark_to_drop()"
           }
@@ -409,7 +410,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 79,
+            "line" : 78,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack.push_front(1)"
           }
@@ -451,7 +452,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 80,
+            "line" : 79,
             "column" : 4,
             "source_fragment" : "meta.header_count = meta.header_count + 1"
           }
@@ -470,7 +471,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 81,
+            "line" : 80,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].update_type = 0"
           }
@@ -489,7 +490,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 82,
+            "line" : 81,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].table_id = table_id; ..."
           }
@@ -508,7 +509,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 83,
+            "line" : 82,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].key_field_1 = key_field_1; ..."
           }
@@ -527,7 +528,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 84,
+            "line" : 83,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].action_id = action_id; ..."
           }
@@ -546,7 +547,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 85,
+            "line" : 84,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].data_field_1 = data_field_1; ..."
           }
@@ -565,7 +566,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 79,
+            "line" : 78,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack.push_front(1)"
           }
@@ -607,7 +608,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 80,
+            "line" : 79,
             "column" : 4,
             "source_fragment" : "meta.header_count = meta.header_count + 1"
           }
@@ -626,7 +627,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 81,
+            "line" : 80,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].update_type = 0"
           }
@@ -645,7 +646,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 82,
+            "line" : 81,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].table_id = table_id; ..."
           }
@@ -664,7 +665,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 83,
+            "line" : 82,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].key_field_1 = key_field_1; ..."
           }
@@ -683,7 +684,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 84,
+            "line" : 83,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].action_id = action_id; ..."
           }
@@ -702,7 +703,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 85,
+            "line" : 84,
             "column" : 4,
             "source_fragment" : "meta.lfu_header_stack[0].data_field_1 = data_field_1; ..."
           }
@@ -733,7 +734,7 @@
           ],
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 118,
+            "line" : 117,
             "column" : 1,
             "source_fragment" : "standard_metadata.egress_spec = port"
           }
@@ -747,7 +748,7 @@
       "id" : 0,
       "source_info" : {
         "filename" : "maclearning_lfu.p4",
-        "line" : 73,
+        "line" : 72,
         "column" : 8,
         "source_fragment" : "MyIngress"
       },
@@ -758,7 +759,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 121,
+            "line" : 120,
             "column" : 32,
             "source_fragment" : "learning_table"
           },
@@ -795,7 +796,7 @@
           "id" : 1,
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 132,
+            "line" : 131,
             "column" : 32,
             "source_fragment" : "forwarding_table"
           },
@@ -835,7 +836,7 @@
           "id" : 0,
           "source_info" : {
             "filename" : "maclearning_lfu.p4",
-            "line" : 145,
+            "line" : 144,
             "column" : 12,
             "source_fragment" : "hdr.ethernet.isValid()"
           },
@@ -860,7 +861,7 @@
       "id" : 1,
       "source_info" : {
         "filename" : "maclearning_lfu.p4",
-        "line" : 156,
+        "line" : 155,
         "column" : 8,
         "source_fragment" : "MyEgress"
       },
