@@ -1,0 +1,914 @@
+{
+  "program" : "maclearning_lfu.p4",
+  "__meta__" : {
+    "version" : [2, 7],
+    "compiler" : "https://github.com/p4lang/p4c"
+  },
+  "header_types" : [
+    {
+      "name" : "scalars_0",
+      "id" : 0,
+      "fields" : [
+        ["metadata.header_count", 6, false],
+        ["_padding_1", 2, false]
+      ]
+    },
+    {
+      "name" : "ethernet_t",
+      "id" : 1,
+      "fields" : [
+        ["dstAddr", 48, false],
+        ["srcAddr", 48, false],
+        ["etherType", 16, false]
+      ]
+    },
+    {
+      "name" : "lfu_header_t",
+      "id" : 2,
+      "fields" : [
+        ["update_type", 2, false],
+        ["table_id", 3, false],
+        ["key_field_1", 48, false],
+        ["action_id", 3, false],
+        ["data_field_1", 9, false],
+        ["_padding", 7, false]
+      ]
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 3,
+      "fields" : [
+        ["ingress_port", 9, false],
+        ["egress_spec", 9, false],
+        ["egress_port", 9, false],
+        ["clone_spec", 32, false],
+        ["instance_type", 32, false],
+        ["drop", 1, false],
+        ["recirculate_port", 16, false],
+        ["packet_length", 32, false],
+        ["enq_timestamp", 32, false],
+        ["enq_qdepth", 19, false],
+        ["deq_timedelta", 32, false],
+        ["deq_qdepth", 19, false],
+        ["ingress_global_timestamp", 48, false],
+        ["lf_field_list", 32, false],
+        ["mcast_grp", 16, false],
+        ["resubmit_flag", 1, false],
+        ["egress_rid", 16, false],
+        ["checksum_error", 1, false],
+        ["_padding_0", 4, false]
+      ]
+    }
+  ],
+  "headers" : [
+    {
+      "name" : "scalars",
+      "id" : 0,
+      "header_type" : "scalars_0",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "standard_metadata",
+      "id" : 1,
+      "header_type" : "standard_metadata",
+      "metadata" : true,
+      "pi_omit" : true
+    },
+    {
+      "name" : "ethernet",
+      "id" : 2,
+      "header_type" : "ethernet_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[0]",
+      "id" : 3,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[1]",
+      "id" : 4,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[2]",
+      "id" : 5,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[3]",
+      "id" : 6,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[4]",
+      "id" : 7,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[5]",
+      "id" : 8,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[6]",
+      "id" : 9,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[7]",
+      "id" : 10,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[8]",
+      "id" : 11,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[9]",
+      "id" : 12,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[10]",
+      "id" : 13,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[11]",
+      "id" : 14,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[12]",
+      "id" : 15,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[13]",
+      "id" : 16,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[14]",
+      "id" : 17,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[15]",
+      "id" : 18,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[16]",
+      "id" : 19,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[17]",
+      "id" : 20,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[18]",
+      "id" : 21,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[19]",
+      "id" : 22,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[20]",
+      "id" : 23,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[21]",
+      "id" : 24,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[22]",
+      "id" : 25,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[23]",
+      "id" : 26,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[24]",
+      "id" : 27,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[25]",
+      "id" : 28,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[26]",
+      "id" : 29,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[27]",
+      "id" : 30,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[28]",
+      "id" : 31,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    },
+    {
+      "name" : "userMetadata.lfu_header_stack[29]",
+      "id" : 32,
+      "header_type" : "lfu_header_t",
+      "metadata" : false,
+      "pi_omit" : true
+    }
+  ],
+  "header_stacks" : [
+    {
+      "name" : "userMetadata.lfu_header_stack",
+      "id" : 0,
+      "header_type" : "lfu_header_t",
+      "size" : 30,
+      "header_ids" : [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32]
+    }
+  ],
+  "header_union_types" : [],
+  "header_unions" : [],
+  "header_union_stacks" : [],
+  "field_lists" : [],
+  "errors" : [
+    ["NoError", 1],
+    ["PacketTooShort", 2],
+    ["NoMatch", 3],
+    ["StackOutOfBounds", 4],
+    ["HeaderTooShort", 5],
+    ["ParserTimeout", 6]
+  ],
+  "enums" : [],
+  "parsers" : [
+    {
+      "name" : "parser",
+      "id" : 0,
+      "init_state" : "start",
+      "parse_states" : [
+        {
+          "name" : "start",
+          "id" : 0,
+          "parser_ops" : [
+            {
+              "parameters" : [
+                {
+                  "type" : "regular",
+                  "value" : "ethernet"
+                }
+              ],
+              "op" : "extract"
+            }
+          ],
+          "transitions" : [
+            {
+              "value" : "default",
+              "mask" : null,
+              "next_state" : null
+            }
+          ],
+          "transition_key" : []
+        }
+      ]
+    }
+  ],
+  "parse_vsets" : [],
+  "deparsers" : [
+    {
+      "name" : "deparser",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "maclearning_lfu.p4",
+        "line" : 174,
+        "column" : 8,
+        "source_fragment" : "MyDeparser"
+      },
+      "order" : ["ethernet"]
+    }
+  ],
+  "meter_arrays" : [],
+  "counter_arrays" : [],
+  "register_arrays" : [],
+  "calculations" : [],
+  "learn_lists" : [],
+  "actions" : [
+    {
+      "name" : "NoAction",
+      "id" : 0,
+      "runtime_data" : [],
+      "primitives" : []
+    },
+    {
+      "name" : "MyIngress.drop",
+      "id" : 1,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "drop",
+          "parameters" : [],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 109,
+            "column" : 8,
+            "source_fragment" : "mark_to_drop()"
+          }
+        }
+      ]
+    },
+    {
+      "name" : "MyIngress.learn",
+      "id" : 2,
+      "runtime_data" : [],
+      "primitives" : [
+        {
+          "op" : "push",
+          "parameters" : [
+            {
+              "type" : "header_stack",
+              "value" : "userMetadata.lfu_header_stack"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x1"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 79,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack.push_front(1)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata.header_count"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["scalars", "metadata.header_count"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x01"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x3f"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 80,
+            "column" : 4,
+            "source_fragment" : "meta.header_count = meta.header_count + 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "update_type"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 81,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].update_type = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "table_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 82,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].table_id = table_id; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "key_field_1"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "srcAddr"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 83,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].key_field_1 = key_field_1; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "action_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 84,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].action_id = action_id; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "data_field_1"]
+            },
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "ingress_port"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 85,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].data_field_1 = data_field_1; ..."
+          }
+        },
+        {
+          "op" : "push",
+          "parameters" : [
+            {
+              "type" : "header_stack",
+              "value" : "userMetadata.lfu_header_stack"
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x1"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 79,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack.push_front(1)"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["scalars", "metadata.header_count"]
+            },
+            {
+              "type" : "expression",
+              "value" : {
+                "type" : "expression",
+                "value" : {
+                  "op" : "&",
+                  "left" : {
+                    "type" : "expression",
+                    "value" : {
+                      "op" : "+",
+                      "left" : {
+                        "type" : "field",
+                        "value" : ["scalars", "metadata.header_count"]
+                      },
+                      "right" : {
+                        "type" : "hexstr",
+                        "value" : "0x01"
+                      }
+                    }
+                  },
+                  "right" : {
+                    "type" : "hexstr",
+                    "value" : "0x3f"
+                  }
+                }
+              }
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 80,
+            "column" : 4,
+            "source_fragment" : "meta.header_count = meta.header_count + 1"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "update_type"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x00"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 81,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].update_type = 0"
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "table_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 82,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].table_id = table_id; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "key_field_1"]
+            },
+            {
+              "type" : "field",
+              "value" : ["ethernet", "srcAddr"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 83,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].key_field_1 = key_field_1; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "action_id"]
+            },
+            {
+              "type" : "hexstr",
+              "value" : "0x01"
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 84,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].action_id = action_id; ..."
+          }
+        },
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["userMetadata.lfu_header_stack[0]", "data_field_1"]
+            },
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "ingress_port"]
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 85,
+            "column" : 4,
+            "source_fragment" : "meta.lfu_header_stack[0].data_field_1 = data_field_1; ..."
+          }
+        }
+      ]
+    },
+    {
+      "name" : "lfu_action_1",
+      "id" : 3,
+      "runtime_data" : [
+        {
+          "name" : "port",
+          "bitwidth" : 9
+        }
+      ],
+      "primitives" : [
+        {
+          "op" : "assign",
+          "parameters" : [
+            {
+              "type" : "field",
+              "value" : ["standard_metadata", "egress_spec"]
+            },
+            {
+              "type" : "runtime_data",
+              "value" : 0
+            }
+          ],
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 118,
+            "column" : 1,
+            "source_fragment" : "standard_metadata.egress_spec = port"
+          }
+        }
+      ]
+    }
+  ],
+  "pipelines" : [
+    {
+      "name" : "ingress",
+      "id" : 0,
+      "source_info" : {
+        "filename" : "maclearning_lfu.p4",
+        "line" : 73,
+        "column" : 8,
+        "source_fragment" : "MyIngress"
+      },
+      "init_table" : "node_2",
+      "tables" : [
+        {
+          "name" : "lfu_table_0",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 121,
+            "column" : 32,
+            "source_fragment" : "learning_table"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.ethernet.srcAddr",
+              "target" : ["ethernet", "srcAddr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [0, 2],
+          "actions" : ["NoAction", "MyIngress.learn"],
+          "base_default_next" : "lfu_table_1",
+          "next_tables" : {
+            "NoAction" : "lfu_table_1",
+            "MyIngress.learn" : "lfu_table_1"
+          },
+          "default_entry" : {
+            "action_id" : 2,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        },
+        {
+          "name" : "lfu_table_1",
+          "id" : 1,
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 132,
+            "column" : 32,
+            "source_fragment" : "forwarding_table"
+          },
+          "key" : [
+            {
+              "match_type" : "exact",
+              "name" : "hdr.ethernet.dstAddr",
+              "target" : ["ethernet", "dstAddr"],
+              "mask" : null
+            }
+          ],
+          "match_type" : "exact",
+          "type" : "simple",
+          "max_size" : 1024,
+          "with_counters" : false,
+          "support_timeout" : false,
+          "direct_meters" : null,
+          "action_ids" : [3, 1],
+          "actions" : ["lfu_action_1", "MyIngress.drop"],
+          "base_default_next" : null,
+          "next_tables" : {
+            "lfu_action_1" : null,
+            "MyIngress.drop" : null
+          },
+          "default_entry" : {
+            "action_id" : 1,
+            "action_const" : false,
+            "action_data" : [],
+            "action_entry_const" : false
+          }
+        }
+      ],
+      "action_profiles" : [],
+      "conditionals" : [
+        {
+          "name" : "node_2",
+          "id" : 0,
+          "source_info" : {
+            "filename" : "maclearning_lfu.p4",
+            "line" : 145,
+            "column" : 12,
+            "source_fragment" : "hdr.ethernet.isValid()"
+          },
+          "expression" : {
+            "type" : "expression",
+            "value" : {
+              "op" : "d2b",
+              "left" : null,
+              "right" : {
+                "type" : "field",
+                "value" : ["ethernet", "$valid$"]
+              }
+            }
+          },
+          "false_next" : null,
+          "true_next" : "lfu_table_0"
+        }
+      ]
+    },
+    {
+      "name" : "egress",
+      "id" : 1,
+      "source_info" : {
+        "filename" : "maclearning_lfu.p4",
+        "line" : 156,
+        "column" : 8,
+        "source_fragment" : "MyEgress"
+      },
+      "init_table" : null,
+      "tables" : [],
+      "action_profiles" : [],
+      "conditionals" : []
+    }
+  ],
+  "checksums" : [],
+  "force_arith" : [],
+  "extern_instances" : [],
+  "field_aliases" : [
+    [
+      "queueing_metadata.enq_timestamp",
+      ["standard_metadata", "enq_timestamp"]
+    ],
+    [
+      "queueing_metadata.enq_qdepth",
+      ["standard_metadata", "enq_qdepth"]
+    ],
+    [
+      "queueing_metadata.deq_timedelta",
+      ["standard_metadata", "deq_timedelta"]
+    ],
+    [
+      "queueing_metadata.deq_qdepth",
+      ["standard_metadata", "deq_qdepth"]
+    ],
+    [
+      "intrinsic_metadata.ingress_global_timestamp",
+      ["standard_metadata", "ingress_global_timestamp"]
+    ],
+    [
+      "intrinsic_metadata.lf_field_list",
+      ["standard_metadata", "lf_field_list"]
+    ],
+    [
+      "intrinsic_metadata.mcast_grp",
+      ["standard_metadata", "mcast_grp"]
+    ],
+    [
+      "intrinsic_metadata.resubmit_flag",
+      ["standard_metadata", "resubmit_flag"]
+    ],
+    [
+      "intrinsic_metadata.egress_rid",
+      ["standard_metadata", "egress_rid"]
+    ]
+  ]
+}
