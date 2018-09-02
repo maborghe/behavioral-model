@@ -169,10 +169,15 @@ class Context final {
     return p4objects->get_action(table_name, action_name)->get_num_params();
   }
 
+  //matteo
   int get_key_size(const std::string &table_name) {
     return p4objects_rt->get_abstract_match_table_rt(table_name)->get_key_input_size();
   }
 
+  //matteo
+  MatchKeyParam::Type get_param_type(const std::string &table_name, int offset) {
+    return p4objects_rt->get_abstract_match_table_rt(table_name)->get_param_type(offset);
+  }
 
  private:
   // ---------- runtime interfaces ----------

@@ -115,6 +115,11 @@ class MatchKeyBuilder {
     return key_input.size();
   }
 
+  //matteo
+  MatchKeyParam::Type get_param_type(int offset) {
+    return key_input[offset].mtype;
+  }
+
   template <typename E>
   std::vector<MatchKeyParam> entry_to_match_params(const E &entry) const;
 
@@ -301,6 +306,11 @@ class MatchUnitAbstract_ {
   //matteo
   int get_key_input_size() {
     return match_key_builder.get_key_input_size();
+  }
+
+  //matteo
+  MatchKeyParam::Type get_param_type(int offset) {
+    return match_key_builder.get_param_type(offset);
   }
 
   // TODO(antonin): add an iterator for entries to MatchUnitGeneric<K, V> ?

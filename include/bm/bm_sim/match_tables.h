@@ -183,6 +183,11 @@ class MatchTableAbstract : public NamedP4Object {
     return match_unit_->get_key_input_size();
   }
 
+  //matteo
+  MatchKeyParam::Type get_param_type(int offset) {
+    return match_unit_->get_param_type(offset);
+  }
+
   // meant to be called by P4Objects when loading the JSON
   // set_default_entry sets a default entry obtained from the JSON. You can make
   // sure that it cannot be changed by the control plane by using the is_const
