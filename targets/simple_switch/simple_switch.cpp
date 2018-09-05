@@ -366,18 +366,19 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
     PHV *phv = packet->get_phv();
     //auto &lfu_header_stack = phv->get_header_stack(get_header_stack_id_cfg("lfu_header_stack"));
     auto &lfu_header_stack = phv->get_header_stack(0); //TODO: get it by name
-    int header_count = phv->get_field("scalars.metadata.header_count").get_int();
-    for (int i = 0; i < header_count; i++) {
+//    int header_count = phv->get_field("scalars.metadata.header_count").get_int();
+//    for (int i = 0; i < 5 && lfu_header_stack.at(i).is_valid(); i++) {
+    for (int i = 0; i < 5;  i++) {
         auto &hdr = lfu_header_stack.at(i);
 
-	/*
+
 	//print header
 	for (int j = 0; j < hdr.get_header_type().get_num_fields(); j++) {
 	    std::cout << hdr.get_field_name(j) << ": " << hdr.get_field(j).get_int() << " | ";
         }
         std::cout << "\n";
-	*/
 
+/*
 	int update_type = hdr.get_field(0).get_int();
 	//std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
 	int table_id = hdr.get_field(1).get_int();
@@ -403,6 +404,15 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 		}
 		break;
 	      case MatchKeyParam::Type::LPM :
+		{
+		std::cout << "Data: " << hdr.get_field(j).get_int() << "\n";
+		std::cout << "prefix length: " << hdr.get_field(j+1).get_int() << "\n";
+		ByteContainer key_field2 = hdr.get_field(j+1).get_bytes();
+		match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key_field.data(), key_field.size()),
+					hdr.get_field(j+1).get_int());
+//					std::string(key_field2.data(), key_field2.size()));
+		std::cout << "Key building OK";
+		}
 		break;
 	      default:
 		std::cout << "ERROR: Unknown MatchKeyParam";
@@ -452,6 +462,7 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 		std::cout << "Failed to retrieve entry: " << SimpleSwitch::printError(rc2) << "\n";
 	    }
 	}
+*/
     }
 }
 
