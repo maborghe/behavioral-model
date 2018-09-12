@@ -31,8 +31,7 @@ struct headers {
 }
 
 struct metadata {
-    bit<6> header_count;
-    lfu_header_t[30] lfu_header_stack;
+    lfu_header_t[5] lfu_header_stack;
 }
 
 /*************************************************************************
@@ -76,7 +75,6 @@ control MyIngress(inout headers hdr,
 
 action add_flow(bit<3> table_id, bit<48> key_field_1, bit<3> action_id, bit<9> data_field_1) {
     meta.lfu_header_stack.push_front(1);
-    meta.header_count = meta.header_count + 1;
     meta.lfu_header_stack[0].update_type = 0;
     meta.lfu_header_stack[0].table_id = table_id;
     meta.lfu_header_stack[0].key_field_1 = key_field_1;
@@ -86,7 +84,6 @@ action add_flow(bit<3> table_id, bit<48> key_field_1, bit<3> action_id, bit<9> d
 
 action modify_flow(bit<3> table_id, bit<48> key_field_1, bit<3> action_id, bit<9> data_field_1) {
     meta.lfu_header_stack.push_front(1);
-    meta.header_count = meta.header_count + 1;
     meta.lfu_header_stack[0].update_type = 1;
     meta.lfu_header_stack[0].table_id = table_id;
     meta.lfu_header_stack[0].key_field_1 = key_field_1;
@@ -96,7 +93,6 @@ action modify_flow(bit<3> table_id, bit<48> key_field_1, bit<3> action_id, bit<9
 
 action delete_flow(bit<3> table_id, bit<48> key_field_1) {
     meta.lfu_header_stack.push_front(1);
-    meta.header_count = meta.header_count + 1;
     meta.lfu_header_stack[0].update_type = 0;
     meta.lfu_header_stack[0].table_id = table_id;
     meta.lfu_header_stack[0].key_field_1 = key_field_1;
