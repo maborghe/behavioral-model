@@ -367,25 +367,24 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
     //auto &lfu_header_stack = phv->get_header_stack(get_header_stack_id_cfg("lfu_header_stack"));
     auto &lfu_header_stack = phv->get_header_stack(0); //TODO: get it by name
 //    int header_count = phv->get_field("scalars.metadata.header_count").get_int();
-//    for (int i = 0; i < 5 && lfu_header_stack.at(i).is_valid(); i++) {
-    for (int i = 0; i < 5;  i++) {
+    for (int i = 0; i < 5 && lfu_header_stack.at(i).is_valid(); i++) {
+//    for (int i = 0; i < 5;  i++) {
         auto &hdr = lfu_header_stack.at(i);
 
-
+/*
 	//print header
 	for (int j = 0; j < hdr.get_header_type().get_num_fields(); j++) {
 	    std::cout << hdr.get_field_name(j) << ": " << hdr.get_field(j).get_int() << " | ";
         }
         std::cout << "\n";
 
-/*
 	int update_type = hdr.get_field(0).get_int();
 	//std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
 	int table_id = hdr.get_field(1).get_int();
 	std::string table_name = "lfu_table_" + std::to_string(table_id);
 	//std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
 	std::vector<MatchKeyParam> match_key;
-
+*/
 
 	int key_size = get_context(0)->get_key_size(table_name);
 	//std::cout << "Key size (" << table_name << "): "<< key_size << "\n";
@@ -462,7 +461,7 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 		std::cout << "Failed to retrieve entry: " << SimpleSwitch::printError(rc2) << "\n";
 	    }
 	}
-*/
+
     }
 }
 
