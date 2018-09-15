@@ -354,7 +354,7 @@ std::string SimpleSwitch::printError(MatchErrorCode rc) {
 	case MatchErrorCode::IMMUTABLE_TABLE_ENTRIES : error ="IMMUTABLE_TABLE_ENTRIES"; break; 
 	case MatchErrorCode::BAD_ACTION_DATA : error = "BAD_ACTION_DATA"; break; 
 	case MatchErrorCode::ERROR : error ="error"; break; 
-	default  : error ="keine Ahnung"; break; 
+	default  : error ="No l'isco"; break; 
     }
     return error;
 }
@@ -364,32 +364,25 @@ void
 SimpleSwitch::apply_lfu_logic(Packet *packet) {
     
     PHV *phv = packet->get_phv();
-    //auto &lfu_header_stack = phv->get_header_stack(get_header_stack_id_cfg("lfu_header_stack"));
-    auto &lfu_header_stack = phv->get_header_stack(0); //TODO: get it by name
-//    int header_count = phv->get_field("scalars.metadata.header_count").get_int();
+    auto &lfu_header_stack = phv->get_header_stack(0);
     for (int i = 0; i < 5 && lfu_header_stack.at(i).is_valid(); i++) {
-//    for (int i = 0; i < 5;  i++) {
         auto &hdr = lfu_header_stack.at(i);
 
 /*
-	//print header
+	//PRINT HEADER, leaving it for debugging purposes
 	for (int j = 0; j < hdr.get_header_type().get_num_fields(); j++) {
 	    std::cout << hdr.get_field_name(j) << ": " << hdr.get_field(j).get_int() << " | ";
         }
         std::cout << "\n";
-
+*/
 	int update_type = hdr.get_field(0).get_int();
-	//std::cout << "Update type (" << hdr.get_field_name(0) << "): " << update_type << "\n";
 	int table_id = hdr.get_field(1).get_int();
 	std::string table_name = "lfu_table_" + std::to_string(table_id);
-	//std::cout << "Table name (" << hdr.get_field_name(1) << "): "<< table_name << "\n";
+	
 	std::vector<MatchKeyParam> match_key;
-*/
-
 	int key_size = get_context(0)->get_key_size(table_name);
-	//std::cout << "Key size (" << table_name << "): "<< key_size << "\n";
 	for (int j = 2; j < 2 + key_size ; j+=2) {
-	    //std::cout << "Key field (" << hdr.get_field_name(j+2) << ")\n";
+
 	    ByteContainer key_field = hdr.get_field(j).get_bytes();
 	    switch (get_context(0)->get_param_type(table_name, j-2)) {
 	      case MatchKeyParam::Type::EXACT :
@@ -404,13 +397,9 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 		break;
 	      case MatchKeyParam::Type::LPM :
 		{
-		std::cout << "Data: " << hdr.get_field(j).get_int() << "\n";
-		std::cout << "prefix length: " << hdr.get_field(j+1).get_int() << "\n";
 		ByteContainer key_field2 = hdr.get_field(j+1).get_bytes();
 		match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key_field.data(), key_field.size()),
 					hdr.get_field(j+1).get_int());
-//					std::string(key_field2.data(), key_field2.size()));
-		std::cout << "Key building OK";
 		}
 		break;
 	      default:
@@ -424,25 +413,18 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 	if (update_type != 1) {
 	    int action_offset = hdr.get_header_type().get_field_offset("action_id");
 	    int action_id = hdr.get_field(action_offset).get_int();
-	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
-	    //std::cout << "Action name: " << action_name << "\n";
-
-
 	    int num_params = get_context(0)->get_num_params_by_name(table_name, action_name);
-	    //std::cout << "Num params: " << num_params << "\n";
-
 	    for (int j = action_offset + 1; j < action_offset + 1+ num_params; j++) {
 
 		adata.push_back_action_data(Data(hdr.get_field(j)));
-
 	    }
 	}
 
 	MatchErrorCode rc;
         rc = MatchErrorCode::SUCCESS;
         uint32_t handle;
-	if (update_type == 0) {
 
+	if (update_type == 0) {
 	    rc = mt_add_entry(0, table_name, match_key, action_name, adata, &handle);
 	    std::cout << "Adding entry: " << SimpleSwitch::printError(rc) << "\n";
 	} else {
@@ -461,7 +443,6 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 		std::cout << "Failed to retrieve entry: " << SimpleSwitch::printError(rc2) << "\n";
 	    }
 	}
-
     }
 }
 
@@ -484,14 +465,6 @@ SimpleSwitch::ingress_thread() {
     int ingress_port = packet->get_ingress_port();
     (void) ingress_port;
 
-    /*
-    //matteo
-    timeval time;
-    gettimeofday(&time, NULL);
-    long micros = (time.tv_sec * 1000000) + time.tv_usec;
-    std::cout << "PKTARRTIME: " << micros << "\n";
-    */
-
     BMLOG_DEBUG_PKT(*packet, "Processing packet received on port {}",
                     ingress_port);
 
@@ -507,96 +480,10 @@ SimpleSwitch::ingress_thread() {
 
     ingress_mau->apply(packet.get());
 
-
-    //matteo    
+    //matteo
+    //Inoghe est cramada sa lògica chi implementat LFU
     apply_lfu_logic(packet.get());
-    /*
-    if (learn_action!=0) {
-      std::vector<MatchKeyParam> match_key;
-      std::vector<MatchKeyParam> match_key_event;
-      std::vector<MatchKeyParam> match_key_mask;
 
-      int update_fields = phv->get_header("userMetadata.update_scope").get_header_type().get_num_fields();
-      for (int i = 0; i < update_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
-	std::string field_name = phv->get_header("userMetadata.update_scope").get_header_type().get_field_name(i);
-	if (field_name != "_padding") {
-	  std::regex e("__");
-	  field_name = std::regex_replace(field_name, e, ".");
-          ByteContainer key = phv->get_field(field_name).get_bytes();
-	  match_key.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32); //TODO: use length
-	  match_key_event.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32); //TODO: use length
-	  match_key_mask.emplace_back(MatchKeyParam::Type::LPM, std::string(key.data(), key.size()), 32); //TODO: use length
-	}
-      }
-
-      int event_fields = phv->get_header("userMetadata.event").get_header_type().get_num_fields();
-      std::cout << "event_fields: " << event_fields << "\n";
-      for (int i = 0; i < event_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
-	std::string field_name = phv->get_header("userMetadata.event").get_header_type().get_field_name(i);
-	if (field_name != "_padding") { //TODO: use regex
-	  std::regex e("__");
-	  field_name = std::regex_replace(field_name, e, ".");
-	  ByteContainer mask1("0x01FF");
-	  ByteContainer mask2("0x0000");
-	  ByteContainer key = phv->get_field(field_name).get_bytes();
-	  match_key_event.emplace_back(MatchKeyParam::Type::TERNARY, std::string(key.data(),key.size()),std::string(mask1.data(),mask1.size()));
-	  match_key_mask.emplace_back(MatchKeyParam::Type::TERNARY,std::string(key.data(),key.size()),std::string(mask2.data(),mask2.size()));
-	  //TODO:use length
-	}
-      }
-
-      ActionData adata1, adata2, adata3;
-      int params_fields = phv->get_header("userMetadata.action_params").get_header_type().get_num_fields();
-      for (int i = 0; i < params_fields -1 ; i++) { // -1 because there is an extra field called "$valid$"
-	std::string field_name = phv->get_header("userMetadata.action_params").get_header_type().get_field_name(i);
-	if (!std::regex_match(field_name, std::regex("_padding(.*)"))) { 
-	  std::regex e("__");
-	  field_name = std::regex_replace(field_name, std::regex("__"), ".");
-          adata1.push_back_action_data(Data(phv->get_field(field_name)));
-	}
-      }
-      uint32_t handle1, handle2, handle3;
-      MatchErrorCode rc1, rc2, rc3;
-      rc1 = rc2 = rc3 = MatchErrorCode::SUCCESS;
-      
-      if (learn_action==2) {
-	rc1 = mt_add_entry(0, "lfu_table", match_key, "lfu_action", adata1, &handle1);
-	std::cout << "adding lfu_table entry: " << SimpleSwitch::printError(rc1) << "\n";
-	rc2 = mt_add_entry(0, "lfu_policy", match_key_event, "not_learn", adata2, &handle2, 2);
-	std::cout << "adding event entry: " << SimpleSwitch::printError(rc2) << "\n";
-	adata3.push_back_action_data(Data(handle2));
-        if (event_fields > 1) {
-	  rc3 = mt_add_entry(0, "lfu_policy", match_key_mask, "learn_modify", adata3, &handle3, 3);
-	  std::cout << "adding masked entry: " << SimpleSwitch::printError(rc3) << "\n";
-	} else {
-	  std::cout << "Update part not required\n";
-	}
-      } else if (learn_action==1) {
-	MatchErrorCode rc4, rc5, rc6;
-	rc4 = rc5 = MatchErrorCode::SUCCESS;
-	MatchTable::Entry entry1, entry2;
-	rc4 = mt_get_entry_from_key(0, "lfu_table", match_key, &entry1);
-	std::cout << "getting lfu_table entry: " << SimpleSwitch::printError(rc4) << "\n";
-	rc1 = mt_modify_entry(0, "lfu_table", entry1.handle, "lfu_action", adata1);
-	std::cout << "modifying lfu_table entry: " << SimpleSwitch::printError(rc1) << "\n";
-	uint32_t old_entry = phv->get_field("scalars.metadata.action_handle").get_uint();
-	rc3 = mt_delete_entry(0, "lfu_policy", old_entry);
-	std::cout << "deleting event entry: " << SimpleSwitch::printError(rc3) << "\n";
-	rc2 = mt_add_entry(0, "lfu_policy", match_key_event, "not_learn", adata2, &handle2, 2);
-	std::cout << "adding event entry: " << SimpleSwitch::printError(rc2) << "\n";
-	rc6 = mt_get_entry_from_key(0, "lfu_policy", match_key_mask, &entry2);
-	std::cout << "getting masked entry: " << SimpleSwitch::printError(rc6) << "\n";	
-	adata3.push_back_action_data(Data(handle2));
-	rc5 = mt_modify_entry(0, "lfu_policy", entry2.handle, "learn_modify", adata3);
-	std::cout << "modifying masked entry: " << SimpleSwitch::printError(rc5) << "\n";
-      } else {
-	//error
-      }
-
-
-    }
-	
-    */
     packet->reset_exit();
 
     Field &f_egress_spec = phv->get_field("standard_metadata.egress_spec");
@@ -700,14 +587,6 @@ SimpleSwitch::ingress_thread() {
     BMLOG_DEBUG_PKT(*packet, "Egress port is {}", egress_port);
 
     if (egress_port == 511) {  // drop packet
-
-      /*
-      //matteo
-      timeval time;
-      gettimeofday(&time, NULL);
-      long micros = (time.tv_sec * 1000000) + time.tv_usec;
-      std::cout << "PKTLEAVTIME: " << micros << "\n";
-      */
 
       BMLOG_DEBUG_PKT(*packet, "Dropping packet at the end of ingress");
       continue;
