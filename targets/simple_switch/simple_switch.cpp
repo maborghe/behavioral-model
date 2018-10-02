@@ -413,6 +413,7 @@ SimpleSwitch::apply_lfu_logic(Packet *packet) {
 	if (update_type != 1) {
 	    int action_offset = hdr.get_header_type().get_field_offset("action_id");
 	    int action_id = hdr.get_field(action_offset).get_int();
+	    action_name = action_id == 0 ? "NoAction" : "lfu_action_" + std::to_string(action_id);
 	    int num_params = get_context(0)->get_num_params_by_name(table_name, action_name);
 	    for (int j = action_offset + 1; j < action_offset + 1+ num_params; j++) {
 
